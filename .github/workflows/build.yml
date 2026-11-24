@@ -18,8 +18,39 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Install Android NDK
-        run: sdkmanager "ndk;27.2.12479018"
+      - name: Install Android NDK and SDK
+        run: |
+          export ANDROID_HOME=/usr/local/lib/android/sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+          yes | sdkmanager --licenses
+          sdkmanager "ndk;27.2.12479018" "platforms;android-36"
+
+      - name: Create Dummy google-services.json
+        run: |
+          cat << 'EOF' > TMessagesProj/google-services.json
+          {
+            "project_info": {
+              "project_number": "123456789012",
+              "project_id": "telegram-custom-app"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:123456789012:android:1234567890abcdef",
+                  "android_client_info": {
+                    "package_name": "org.telegram.messenger.beta"
+                  }
+                },
+                "api_key": [
+                  {
+                    "current_key": "AIzaSyDummyKeyForBuildOnly1234567890"
+                  }
+                ]
+              }
+            ],
+            "configuration_version": "1"
+          }
+          EOF
 
       - name: Grant Gradle Permission
         run: chmod +x gradlew
